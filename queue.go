@@ -17,6 +17,7 @@ func Queue() {
 				Proxies.ips[ip] = struct{}{}
 				Proxies.mu.Unlock()
 				atomic.AddUint64(&imported, 1)
+				atomic.AddInt64(&totalJobs, 1)
 			}
 		}
 	}

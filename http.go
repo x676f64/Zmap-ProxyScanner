@@ -69,6 +69,7 @@ func (p *Proxy) CheckProxyHTTP(proxy string) {
 	defer func() {
 		atomic.AddInt64(&p.openHttpThreads, -1)
 		atomic.AddUint64(&checked, 1)
+		atomic.AddInt64(&jobsCompleted, 1)
 	}()
 
 	var err error
@@ -143,6 +144,7 @@ func (p *Proxy) CheckProxySocks4(proxy string) {
 	defer func() {
 		atomic.AddInt64(&p.openHttpThreads, -1)
 		atomic.AddUint64(&checked, 1)
+		atomic.AddInt64(&jobsCompleted, 1)
 	}()
 
 	var err error
@@ -177,6 +179,7 @@ func (p *Proxy) CheckProxySocks4(proxy string) {
 		atomic.AddUint64(&proxyErr, 1)
 		if strings.Contains(err.Error(), "timeout") {
 			atomic.AddUint64(&timeoutErr, 1)
+			atomic.AddInt64(&jobsCompleted, 1)
 			return
 		}
 		return

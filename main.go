@@ -14,6 +14,7 @@ import (
 	"os/signal"
 	"strings"
 	"time"
+	"sync/atomic"
 )
 
 var port = flag.Int("p", 80, "proxy port")
@@ -22,6 +23,11 @@ var configFile = flag.String("cfg", "config.json", "configuration file")
 
 var input = flag.String("in", "", "input file to check")
 var fetch = flag.String("url", "", "url proxy fetch")
+
+var (
+	jobsCompleted int64
+	totalJobs     int64
+)
 
 const wt = 3
 
@@ -76,6 +82,7 @@ func main() {
 		out: *output,
 	}
 
+
 	go exporter.create()
 	go Queue()
 	go Scanner()
@@ -83,10 +90,36 @@ func main() {
 		go Proxies.WorkerThread()
 	}
 	go Stater()
-	time.Sleep(time.Second)
+	
+	// Start a goroutine to check for job completion
+	done := make(chan bool)
+	go checkJobCompletion(done)
 
-	sc := make(chan os.Signal, 1)
-	signal.Notify(sc, os.Kill, os.Interrupt)
-	<-sc
+	// Wait for job completion or interrupt signal
+	select {
+	case <-done:
+		fmt.Println("All jobs completed. Exiting...")
+	case <-waitForInterrupt():
+		fmt.Println("Interrupt received. Exiting...")
+	}
+
 	exporter.Close()
+}
+
+func checkJobCompletion(done chan<- bool) {
+	ticker := time.NewTicker(time.Second)
+	defer ticker.Stop()
+
+	for range ticker.C {
+		if atomic.LoadInt64(&jobsCompleted) == atomic.LoadInt64(&totalJobs) && atomic.LoadInt64(&totalJobs) > 0 {
+			done <- true
+			return
+		}
+	}
+}
+
+func waitForInterrupt() <-chan os.Signal {
+	c := make(chan os.Signal, 1)
+	signal.Notify(c, os.Interrupt, os.Kill)
+	return c
 }
