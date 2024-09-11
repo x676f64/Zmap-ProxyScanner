@@ -30,25 +30,34 @@ func Scanner() {
 
 		scanner := bufio.NewScanner(bytes.NewReader(body))
 		for scanner.Scan() {
-			ip := scanner.Text()
-			queueChan <- ip
+			ip := strings.TrimSpace(scanner.Text())
+			if ip != "" {
+				queueChan <- ip
+			}
 		}
 	} else if *input != "" {
 		fmt.Printf("Detected FILE Mode.\n")
-		b, err := os.ReadFile(*input)
+		file, err := os.Open(*input)
 		if err != nil {
 			log.Fatalln("open file err")
 		}
-		lines := strings.Split(string(b), "\n")
-		for _, line := range lines {
-			queueChan <- line
+		defer file.Close()
+
+		scanner := bufio.NewScanner(file)
+		for scanner.Scan() {
+			line := strings.TrimSpace(scanner.Text())
+			if line != "" {
+				queueChan <- line
+			}
 		}
 	} else {
 		fmt.Printf("Detected ZMAP Mode.\n")
 		scanner := bufio.NewScanner(os.Stdin)
 		for scanner.Scan() {
-			ip := scanner.Text()
-			queueChan <- ip
+			ip := strings.TrimSpace(scanner.Text())
+			if ip != "" {
+				queueChan <- ip
+			}
 		}
 	}
 }
