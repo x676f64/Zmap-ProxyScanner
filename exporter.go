@@ -1,12 +1,9 @@
-/*
-	(c) Yariya
-*/
-
 package main
 
 import (
 	"log"
 	"os"
+	"fmt"
 )
 
 type Exporter struct {
@@ -29,8 +26,9 @@ func (e *Exporter) Close() {
 	e.f.Close()
 }
 
-func (e *Exporter) Add(s string) {
-	_, err := e.f.WriteString(s + "\n")
+func (e *Exporter) Add(proxyType, host string, port int) {
+	output := fmt.Sprintf("%s://%s:%d\n", proxyType, host, port)
+	_, err := e.f.WriteString(output)
 	if err != nil {
 		log.Println(err)
 		return

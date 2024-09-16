@@ -44,16 +44,15 @@ func GetISP(proxy string) (isp *IPAPI) {
 	return
 }
 
-func PrintProxy(proxy string, port int) {
+func PrintProxy(proxyType, proxy string, port int) {
 	if config.PrintIps.DisplayIpInfo {
 		ipApi := GetISP(proxy)
 		if ipApi == nil {
-			fmt.Printf("New Proxy \033[32m%s:%d\033[39m Country: \033[34m error\033[39m ISP: \033[34merror\033[39m\n", proxy, port)
+			fmt.Printf("New Proxy \033[32m%s://%s:%d\033[39m Country: \033[34m error\033[39m ISP: \033[34merror\033[39m\n", proxyType, proxy, port)
 		} else {
-			fmt.Printf("New Proxy \033[32m%s:%d\033[39m Country: \033[34m %s\033[39m ISP: \033[34m%s\033[39m\n", proxy, port, ipApi.Country, ipApi.Isp)
+			fmt.Printf("New Proxy \033[32m%s://%s:%d\033[39m Country: \033[34m %s\033[39m ISP: \033[34m%s\033[39m\n", proxyType, proxy, port, ipApi.Country, ipApi.Isp)
 		}
-
 	} else {
-		fmt.Printf("\033[32mNew Proxy %s:%d\033[39m\n", proxy, port)
+		fmt.Printf("\033[32mNew Proxy %s://%s:%d\033[39m\n", proxyType, proxy, port)
 	}
 }

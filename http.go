@@ -148,12 +148,13 @@ func (p *Proxy) CheckProxyHTTP(host string, port int) {
 		atomic.AddUint64(&statusCodeErr, 1)
 	} else {
 		if config.PrintIps.Enabled {
-			go PrintProxy(host, port)
+			go PrintProxy("http", host, port)
 		}
 		atomic.AddUint64(&success, 1)
-		exporter.Add(fmt.Sprintf("%s:%d", host, port))
+		exporter.Add("http", host, port)
 	}
 }
+
 
 func (p *Proxy) CheckProxySocks4(host string, port int) {
 	atomic.AddInt64(&p.openHttpThreads, 1)
@@ -193,12 +194,13 @@ func (p *Proxy) CheckProxySocks4(host string, port int) {
 		atomic.AddUint64(&statusCodeErr, 1)
 	} else {
 		if config.PrintIps.Enabled {
-			go PrintProxy(host, port)
+			go PrintProxy("socks4", host, port)
 		}
 		atomic.AddUint64(&success, 1)
-		exporter.Add(fmt.Sprintf("%s:%d", host, port))
+		exporter.Add("socks4", host, port)
 	}
 }
+
 
 func (p *Proxy) CheckProxySocks5(host string, port int) {
 	atomic.AddInt64(&p.openHttpThreads, 1)
@@ -238,9 +240,9 @@ func (p *Proxy) CheckProxySocks5(host string, port int) {
 		atomic.AddUint64(&statusCodeErr, 1)
 	} else {
 		if config.PrintIps.Enabled {
-			go PrintProxy(host, port)
+			go PrintProxy("socks5", host, port)
 		}
 		atomic.AddUint64(&success, 1)
-		exporter.Add(fmt.Sprintf("%s:%d", host, port))
+		exporter.Add("socks5", host, port)
 	}
 }
